@@ -1,72 +1,60 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - basic window
-*
-*   Example complexity rating: [★☆☆☆] 1/4
-*
-*   Welcome to raylib!
-*
-*   To test examples, just press F6 and execute 'raylib_compile_execute' script
-*   Note that compiled executable is placed in the same folder as .c file
-*
-*   To test the examples on Web, press F6 and execute 'raylib_compile_execute_web' script
-*   Web version of the program is generated in the same folder as .c file
-*
-*   You can find all basic examples on C:\raylib\raylib\examples folder or
-*   raylib official webpage: www.raylib.com
-*
-*   Enjoy using raylib. :)
-*
-*   Example originally created with raylib 1.0, last time updated with raylib 1.0
-*
-*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-*   BSD-like license that allows static linking with closed source software
-*
-*   Copyright (c) 2013-2025 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
-
 #include "raylib.h"
+#include "dungeon.h"
+#include "game.h"
+#include "player.h"
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
 int main(void)
 {
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    InitWindow(WINDOW_SIZE, WINDOW_SIZE, GAME_TITLE);
+    SetTargetFPS(60);
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    // Create a render texture for the game world
+    RenderTexture2D target = LoadRenderTexture(GAME_WINDOW_SIZE, GAME_WINDOW_SIZE);
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+    dungeon_t dungeon;
+    player_t player = { 
+                        .pos = (vec2ui8_t) { (int)(GAME_WINDOW_SIZE/16), (int)(GAME_WINDOW_SIZE/16) },
+                        .size = (vec2ui8_t) { TILE_SIZE, TILE_SIZE },
+                        .sprite = LoadTexture("res/player.png")
+                      };
 
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    GenerateDungeonRooms(&dungeon);
+
+    while (!WindowShouldClose())
     {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
+        if (IsKeyPressed(KEY_D)) player.pos.x += 1;
+        if (IsKeyPressed(KEY_A)) player.pos.x -= 1;
+        if (IsKeyPressed(KEY_W)) player.pos.y -= 1;
+        if (IsKeyPressed(KEY_S)) player.pos.y += 1;
 
-        // Draw
-        //----------------------------------------------------------------------------------
+        // --- Draw to render texture (game space) ---
+        BeginTextureMode(target);
+            ClearBackground((Color){ 30, 30, 40, 255 });
+            for (int roomidx = 0; roomidx < dungeon.roomcount; roomidx++) {
+                DrawRectangle(dungeon.rooms[roomidx].pos.x*TILE_SIZE, 
+                              dungeon.rooms[roomidx].pos.y*TILE_SIZE, 
+                              dungeon.rooms[roomidx].size.x*TILE_SIZE, 
+                              dungeon.rooms[roomidx].size.y*TILE_SIZE, 
+                              RED);
+            }
+            DrawTexture(player.sprite, player.pos.x*TILE_SIZE, player.pos.y*TILE_SIZE, RAYWHITE);
+        EndTextureMode();
+
+        // --- Draw scaled to screen ---
         BeginDrawing();
-
-            ClearBackground(RAYWHITE);
-
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
+            ClearBackground(BLACK);
+            DrawTexturePro(
+                target.texture,
+                (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height },
+                (Rectangle){ 0, 0, WINDOW_SIZE, WINDOW_SIZE },
+                (Vector2){ 0, 0 },
+                0.0f,
+                WHITE
+            );
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
+    UnloadRenderTexture(target);
+    CloseWindow();
     return 0;
 }
