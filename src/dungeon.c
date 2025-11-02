@@ -43,6 +43,41 @@ void DrawWalls(room_t room, Texture *htexture, Texture *vtexture) {
     }
 }
 
+void GenerateDoors(room_t *room) {
+    SetRandomSeed((int)(room->pos.x+room->pos.y));
+
+    const int TOP = 0;
+    const int RIGHT = 1;
+    const int BOTTOM = 2;
+    const int LEFT = 3;
+
+    // clockwise 0 1 2 3
+    int randwall1 = GetRandomValue(0, 1);
+    int randwall2 = GetRandomValue(2, 3);
+    vec2ui8_t doorpos1;
+    vec2ui8_t doorpos2;
+
+    if (randwall1 == TOP) {
+        doorpos1.y = room->pos.y;
+        doorpos1.x = GetRandomValue(room->pos.x+2, room->pos.x+room->size.x-2);
+    }
+    if (randwall2 == BOTTOM) {
+        doorpos2.y = room->pos.y + room->size.y-1;
+        doorpos2.x = GetRandomValue(room->pos.x+2, room->pos.x+room->size.x-2);
+    }
+    if (randwall1 == RIGHT) {
+        doorpos1.y = GetRandomValue(room->pos.y+2, room->pos.y+room->size.y-2);
+        doorpos1.x = room->pos.x + room->size.x-1;
+    }
+    if (randwall2 == LEFT) {
+        doorpos2.y = GetRandomValue(room->pos.y+2, room->pos.y+room->size.y-2);
+        doorpos2.x = room->pos.x;
+    }
+
+    room->doorpos[0] = doorpos1;
+    room->doorpos[1] = doorpos2;
+}
+
 void GenerateDungeonRooms(dungeon_t *dungeon) {
     SetRandomSeed(time(0));
     dungeon->roomcount = 0;
@@ -57,8 +92,8 @@ void GenerateDungeonRooms(dungeon_t *dungeon) {
 
         for (int retry = 0; retry < 100 && !placed; retry++) {
             vec2ui8_t pos = {
-                GetRandomValue(1, GAME_WINDOW_SIZE / TILE_SIZE - size.x - 1),
-                GetRandomValue(1, GAME_WINDOW_SIZE / TILE_SIZE - size.y - 1)
+                GetRandomValue(3, GAME_WINDOW_SIZE / TILE_SIZE - size.x - 3),
+                GetRandomValue(3, GAME_WINDOW_SIZE / TILE_SIZE - size.y - 3)
             };
 
             room_t candidate = { .pos = pos, .size = size };
@@ -72,8 +107,10 @@ void GenerateDungeonRooms(dungeon_t *dungeon) {
             }
 
             if (!collides) {
+                GenerateDoors(&candidate);
                 dungeon->rooms[dungeon->roomcount++] = candidate;
                 placed = true;
+
             }
         }
     }

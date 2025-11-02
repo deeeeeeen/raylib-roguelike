@@ -34,6 +34,8 @@ int main(void)
             ClearBackground(BLACK);
             for (int idx = 0; idx < dungeon.roomcount; idx++) {
                 DrawWalls(dungeon.rooms[idx], &hwall[0], &vwall[0]);
+                DrawRectangle(dungeon.rooms[idx].doorpos[0].x*TILE_SIZE, dungeon.rooms[idx].doorpos[0].y*TILE_SIZE, TILE_SIZE, TILE_SIZE, RED);
+                DrawRectangle(dungeon.rooms[idx].doorpos[1].x*TILE_SIZE, dungeon.rooms[idx].doorpos[1].y*TILE_SIZE, TILE_SIZE, TILE_SIZE, RED);
             }
             DrawTexture(player.sprite, player.pos.x*TILE_SIZE, player.pos.y*TILE_SIZE, RAYWHITE);
         EndTextureMode();
