@@ -18,6 +18,8 @@ int main(void)
                         .sprite = LoadTexture("res/player.png")
                       };
 
+    Texture vwall[2] = { LoadTexture("res/vwall1.png"), LoadTexture("res/vwall2.png") };
+    Texture hwall[5] = { LoadTexture("res/hwall1.png"), LoadTexture("res/hwall2.png"), LoadTexture("res/hwall3.png"), LoadTexture("res/hwall4.png"), LoadTexture("res/hwall5.png") };
     GenerateDungeonRooms(&dungeon);
 
     while (!WindowShouldClose())
@@ -29,13 +31,9 @@ int main(void)
 
         // --- Draw to render texture (game space) ---
         BeginTextureMode(target);
-            ClearBackground((Color){ 30, 30, 40, 255 });
-            for (int roomidx = 0; roomidx < dungeon.roomcount; roomidx++) {
-                DrawRectangle(dungeon.rooms[roomidx].pos.x*TILE_SIZE, 
-                              dungeon.rooms[roomidx].pos.y*TILE_SIZE, 
-                              dungeon.rooms[roomidx].size.x*TILE_SIZE, 
-                              dungeon.rooms[roomidx].size.y*TILE_SIZE, 
-                              RED);
+            ClearBackground(BLACK);
+            for (int idx = 0; idx < dungeon.roomcount; idx++) {
+                DrawWalls(dungeon.rooms[idx], &hwall[0], &vwall[0]);
             }
             DrawTexture(player.sprite, player.pos.x*TILE_SIZE, player.pos.y*TILE_SIZE, RAYWHITE);
         EndTextureMode();

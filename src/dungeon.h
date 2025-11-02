@@ -7,8 +7,9 @@
 #include <time.h>
 
 #define MAX_ROOMS 10
-#define MIN_ROOM_SIZE 4
-#define MAX_ROOM_SIZE 8
+#define MIN_ROOM_SIZE 5
+#define MAX_ROOM_SIZE 10
+#define ROOM_PADDING 2
 
 typedef struct room_s {
     vec2ui8_t pos;
@@ -21,5 +22,6 @@ typedef struct {
 } dungeon_t;
 
 void GenerateDungeonRooms(dungeon_t *dungeon);
+void DrawWalls(room_t room, Texture *htexture, Texture *vtexture);
 
 #endif
